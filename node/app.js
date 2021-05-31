@@ -1,45 +1,28 @@
 const express = require('express');
-const path = require('path');
-const morgan = require('morgan');
-const nunjucks = require('nunjucks');
-
-const { sequelize } = require('./models');
-
 const app = express();
-app.set('port', process.env.PORT || 3001);
-app.set('view engine', 'html');
-nunjucks.configure('views', {
-  express: app,
-  watch: true,
-});
+const {sequelize}=require('./models') //index생략가능  //model의 index를 가져옴
 
-sequelize.sync({ force: false })
-  .then(() => {
-    console.log('데이터베이스 연결 성공');
-  })
-  .catch((err) => {
-    console.error(err);
-  });
-
-app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+const {User}=require('./models')
 
 
-app.use((req, res, next) => {
-  const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
-  error.status = 404;
-  next(error);
-});
 
-app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.get('/', async (req,res)=>{ //요 익명함수를 async로 해놓고 
+    /* insert문
+    User.create({   //User의 부모에 create를 가지고 있어서 사용 가능 
+        name:'zero',
+        age:24,
+        married:false,
+        comment:'자기소개1',
+    })*/
 
-app.listen(app.get('port'), () => {
-  console.log(app.get('port'), '번 포트에서 대기 중');
-});
+    //Select 문
+    console.log(await User.findAll({}));
+
+
+
+    res.send('hello world');
+})
+
+app.listen(3000,()=>{
+    console.log('server start 3000')
+})
